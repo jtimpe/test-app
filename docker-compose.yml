@@ -1,5 +1,5 @@
 services:
-  web:
+  api:
     build: ./api
     ports:
       - "5000:5000"
@@ -7,8 +7,20 @@ services:
       - db
     environment:
       - DATABASE_URL=postgresql://postgres:password@db/myapp
+      - WORKER_URI=http://worker:5001
     volumes:
       - ./api:/app
+
+  worker:
+    build: ./worker
+    ports:
+      - "5001:5001"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db/myapp
+    volumes:
+      - ./worker:/app
 
   db:
     image: postgres
