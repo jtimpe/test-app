@@ -3,6 +3,7 @@ services:
     build: ./api
     ports:
       - "5000:5000"
+    # command: flask --app app.py --debug run --port 5000
     depends_on:
       - db
     environment:
@@ -15,6 +16,7 @@ services:
     build: ./worker
     ports:
       - "5001:5001"
+    # command: flask --app app.py --debug run --port 5001
     depends_on:
       - db
     environment:
