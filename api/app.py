@@ -1,6 +1,7 @@
 import os
 import requests
-from flask import Flask
+from flask import Flask, request
+from flask_cors import CORS, cross_origin
 from typing import Optional
 from sqlalchemy import String
 from sqlalchemy import create_engine, MetaData, select
@@ -25,7 +26,10 @@ class WeatherCondition(Base):
     city: Mapped[Optional[str]]
     reported_by: Mapped[str] = mapped_column(String(30))
 
+
 app = Flask(__name__)
+cors = CORS(app) # allow CORS for all domains on all routes.
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 WORKER_URI = os.environ.get("WORKER_URI")
 
@@ -40,6 +44,7 @@ def do_work():
     return requests.get(f'{WORKER_URI}/hello').content
 
 @app.route("/weather/")
+@cross_origin()
 def weather():
     weather_reports = []
     with Session(engine) as session:
@@ -61,20 +66,30 @@ def weather():
             print(weather_reports)
     return weather_reports
 
-@app.route("/report_weather")
+
+@app.route("/report_weather", methods=['POST'])
+@cross_origin()
 def report_weather():
+    data = request.get_json()  # a multidict containing POST data
+
+    temp = data.get('temperature', None)
+    condition = data.get('condition', None)
+    city = data.get('city', None)
+    reported_by = data.get('reported_by', None)
+
     with Session(engine) as session:
         weather = WeatherCondition(
-            temp_f=25,
-            condition="Snowy",
-            city="Springdale",
-            reported_by="Jan"
+            temp_f=temp,
+            condition=condition,
+            city=city,
+            reported_by=reported_by
         )
 
         session.add_all([weather])
         session.commit()
 
     return "Thanks."
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

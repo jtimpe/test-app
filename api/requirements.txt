@@ -2,3 +2,4 @@ Flask
 requests
 SQLAlchemy
 psycopg2-binary
+flask-cors
