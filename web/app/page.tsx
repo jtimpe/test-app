@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const API_URI = 'http://localhost:5000'
+
 export default function Home() {
   const [temperature, setTemperature] = useState('')
   const [condition, setCondition] = useState('')
@@ -18,7 +20,7 @@ export default function Home() {
     console.log('reported_by', reported_by)
 
     fetch(
-      'http://localhost:5000/report_weather',
+      `${API_URI}/report_weather`,
       {
         method: "POST",
         headers: {
